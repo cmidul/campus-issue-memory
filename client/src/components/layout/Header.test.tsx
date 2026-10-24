@@ -44,7 +44,8 @@ describe('Header', () => {
     expect(screen.getByRole('navigation', { name: 'Mobile' })).toBeVisible();
 
     await user.click(screen.getByRole('button', { name: 'Close menu' }));
-    expect(screen.getByRole('navigation', { name: 'Mobile' })).not.toBeVisible();
+    // The menu is hidden again, so include hidden elements in the query.
+    expect(screen.getByRole('navigation', { name: 'Mobile', hidden: true })).not.toBeVisible();
   });
 
   it('reports the report button to the parent', async () => {

@@ -1,18 +1,83 @@
-import { REPORT_STATUS_META, getCategoryMeta } from '@cim/shared';
+import { useState } from 'react';
+import {
+  ANONYMOUS_AUTHOR_LABEL,
+  REPORT_STATUS_META,
+  getCategoryMeta,
+  type ReactionType,
+} from '@cim/shared';
+import { Avatar } from '../ui/Avatar';
 import { Badge } from '../ui/Badge';
 import { StatusBadge } from '../ui/StatusBadge';
+import { CommentSection } from './CommentSection';
+import { ReactionBar } from './ReactionBar';
 import type { DemoReport } from '../../data/demoReports';
 
 export interface ReportCardProps {
   report: DemoReport;
 }
 
-/** One report in the feed: photo (or video note), status, category, details. */
+/**
+ * One post in the Facebook-style feed: author header, description, media,
+ * reactions, status history, and a comment thread. Reaction and comment state
+ * is local demo state — nothing is sent anywhere.
+ */
 export function ReportCard({ report }: ReportCardProps) {
   const category = getCategoryMeta(report.category);
+  const [reactions, setReactions] = useState(report.reactions);
+  const [myReaction, setMyReaction] = useState<ReactionType | null>(null);
+  const [comments, setComments] = useState(report.comments);
+
+  function toggleReaction(reaction: ReactionType) {
+    if (myReaction === reaction) {
+      // Tapping again removes the reaction.
+      setReactions((current) => ({ ...current, [reaction]: current[reaction] - 1 }));
+      setMyReaction(null);
+      return;
+    }
+    setReactions((current) => {
+      const next = { ...current };
+      if (myReaction) {
+        next[myReaction] -= 1;
+      }
+      next[reaction] += 1;
+      return next;
+    });
+    setMyReaction(reaction);
+  }
+
+  const isAnonymous = report.author.isAnonymous;
+  const authorDisplay = isAnonymous ? ANONYMOUS_AUTHOR_LABEL : report.author.name;
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-2xl border border-line bg-surface shadow-sm">
+    <article
+      aria-label={report.title}
+      className="overflow-hidden rounded-2xl border border-line bg-surface shadow-sm"
+    >
+      {/* Author header */}
+      <header className="flex items-start gap-3 px-4 pt-4">
+        <Avatar name={report.author.name} anonymous={isAnonymous} />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-ink">{authorDisplay}</p>
+          <p className="flex flex-wrap items-center gap-x-1.5 text-xs text-ink-muted">
+            <span>{report.createdAt}</span>
+            <span aria-hidden="true">·</span>
+            <span>{report.location}</span>
+          </p>
+        </div>
+        <StatusBadge status={report.status} />
+      </header>
+
+      {/* Post body */}
+      <div className="flex flex-col gap-2 px-4 pt-3">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Badge tone="neutral">{category.label}</Badge>
+          {report.severity === 'high' && <Badge tone="danger">High priority</Badge>}
+        </div>
+        <h3 className="text-base font-semibold leading-snug text-ink">{report.title}</h3>
+        <p className="text-sm text-ink-muted">{report.description}</p>
+      </div>
+
+      {/* Media */}
       {report.image ? (
         <img
           src={report.image.src}
@@ -20,10 +85,10 @@ export function ReportCard({ report }: ReportCardProps) {
           loading="lazy"
           width={400}
           height={300}
-          className="aspect-[4/3] w-full object-cover"
+          className="mt-3 aspect-[4/3] w-full object-cover"
         />
-      ) : (
-        <div className="flex aspect-[4/3] w-full items-center justify-center bg-surface-2">
+      ) : report.videoLabel ? (
+        <div className="mt-3 flex aspect-[4/3] w-full items-center justify-center bg-surface-2">
           <span className="flex flex-col items-center gap-2 px-4 text-center text-sm text-ink-muted">
             <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="h-8 w-8">
               <rect
@@ -37,38 +102,19 @@ export function ReportCard({ report }: ReportCardProps) {
               />
               <path d="m8.5 8 4 2.5-4 2.5V8Z" fill="currentColor" />
             </svg>
-            {report.videoLabel ?? 'No photo'}
+            {report.videoLabel}
           </span>
         </div>
-      )}
+      ) : null}
 
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <StatusBadge status={report.status} />
-          <Badge tone="neutral">{category.label}</Badge>
-          {report.severity === 'high' && <Badge tone="danger">High priority</Badge>}
-        </div>
+      {/* Reactions + actions */}
+      <div className="px-4 pt-3">
+        <ReactionBar counts={reactions} selected={myReaction} onToggle={toggleReaction} />
+      </div>
 
-        <h3 className="text-base font-semibold leading-snug text-ink">{report.title}</h3>
-
-        <p className="line-clamp-2 text-sm text-ink-muted">{report.description}</p>
-
-        <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-1 text-xs text-ink-muted">
-          <span className="inline-flex items-center gap-1">
-            <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="h-3.5 w-3.5">
-              <path
-                d="M10 17s5.5-4.2 5.5-8.5a5.5 5.5 0 1 0-11 0C4.5 12.8 10 17 10 17Z"
-                stroke="currentColor"
-                strokeWidth="1.5"
-              />
-              <circle cx="10" cy="8.5" r="1.75" stroke="currentColor" strokeWidth="1.5" />
-            </svg>
-            {report.location}
-          </span>
-          <span>{report.createdAt}</span>
-        </div>
-
-        <details className="mt-1 rounded-xl bg-surface-2 px-3 py-2.5">
+      {/* Status history (collapsible) */}
+      <div className="px-4 pt-2">
+        <details className="rounded-xl bg-surface-2 px-3 py-2.5">
           <summary className="cursor-pointer list-none text-sm font-medium text-ink">
             <span className="inline-flex items-center gap-1.5">
               <svg
@@ -99,6 +145,25 @@ export function ReportCard({ report }: ReportCardProps) {
             ))}
           </ol>
         </details>
+      </div>
+
+      {/* Comments */}
+      <div className="px-4 py-3">
+        <CommentSection
+          comments={comments}
+          viewerName="Alex Kim"
+          onAdd={(text) =>
+            setComments((current) => [
+              ...current,
+              {
+                id: `local-${Date.now()}-${current.length}`,
+                authorName: 'Alex Kim',
+                text,
+                createdAt: 'Just now',
+              },
+            ])
+          }
+        />
       </div>
     </article>
   );

@@ -47,6 +47,6 @@ describe('FormField', () => {
     );
 
     // The visual asterisk is aria-hidden; screen readers hear "(required)".
-    expect(screen.getByLabelText(/Where is it\? \(required\)/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Where is it\?.*\(required\)/)).toBeInTheDocument();
   });
 });

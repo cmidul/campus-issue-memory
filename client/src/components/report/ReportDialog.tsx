@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { CATEGORIES, LIMITS, SEVERITIES } from '@cim/shared';
+import { ANONYMOUS_AUTHOR_LABEL, CATEGORIES, LIMITS, SEVERITIES } from '@cim/shared';
+import { DEMO_VIEWER } from '../../data/demoReports';
+import { Avatar } from '../ui/Avatar';
 import { Button } from '../ui/Button';
 import { Dialog } from '../ui/Dialog';
 import { FormField } from '../ui/FormField';
@@ -31,6 +33,7 @@ export function ReportDialog({ open, onClose }: ReportDialogProps) {
   const [severity, setSeverity] = useState('medium');
   const [photo, setPhoto] = useState<{ url: string; name: string } | null>(null);
   const [video, setVideo] = useState<{ name: string } | null>(null);
+  const [postAnonymously, setPostAnonymously] = useState(false);
   const [errors, setErrors] = useState<{ description?: string; location?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
@@ -52,6 +55,7 @@ export function ReportDialog({ open, onClose }: ReportDialogProps) {
     setSeverity('medium');
     setPhoto(null);
     setVideo(null);
+    setPostAnonymously(false);
     setErrors({});
     if (photoInputRef.current) photoInputRef.current.value = '';
     if (videoInputRef.current) videoInputRef.current.value = '';
@@ -128,6 +132,29 @@ export function ReportDialog({ open, onClose }: ReportDialogProps) {
       }
     >
       <form id="report-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {/* Signed-in account posting as (or anonymously). */}
+        <div className="flex items-center gap-3 rounded-xl bg-surface-2 px-3.5 py-3">
+          <Avatar name={DEMO_VIEWER.name} anonymous={postAnonymously} />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-ink">
+              {postAnonymously ? ANONYMOUS_AUTHOR_LABEL : DEMO_VIEWER.name}
+            </p>
+            <p className="text-xs text-ink-muted">
+              {postAnonymously
+                ? 'Other students will not see your name on this post.'
+                : 'Posting from your university account.'}
+            </p>
+          </div>
+          <label className="flex shrink-0 cursor-pointer items-center gap-2 text-sm font-medium text-ink">
+            <input
+              type="checkbox"
+              checked={postAnonymously}
+              onChange={(event) => setPostAnonymously(event.target.checked)}
+              className="h-5 w-5 rounded border-line accent-[var(--accent-600)]"
+            />
+            <span>Post anonymously</span>
+          </label>
+        </div>
         <FormField
           label="Add a photo"
           hint={`JPG, PNG, or WebP — up to ${formatMb(LIMITS.photoMaxBytes)}.`}
@@ -138,6 +165,7 @@ export function ReportDialog({ open, onClose }: ReportDialogProps) {
               type="file"
               accept={LIMITS.photoAcceptedTypes.join(',')}
               onChange={handlePhotoChange}
+              aria-label="Choose a photo file"
               className="block w-full text-base text-ink-muted file:mr-3 file:rounded-xl file:border-0 file:bg-surface-2 file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-ink"
             />
             {photo && (
@@ -164,6 +192,7 @@ export function ReportDialog({ open, onClose }: ReportDialogProps) {
             type="file"
             accept={LIMITS.videoAcceptedTypes.join(',')}
             onChange={handleVideoChange}
+            aria-label="Choose a short video clip"
             className="block w-full text-base text-ink-muted file:mr-3 file:rounded-xl file:border-0 file:bg-surface-2 file:px-4 file:py-2.5 file:text-sm file:font-semibold file:text-ink"
           />
           {video && <p className="mt-1.5 text-sm text-ink">Clip selected: {video.name}</p>}

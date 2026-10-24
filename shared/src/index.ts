@@ -204,6 +204,12 @@ export interface Comment {
   createdAt: string;
 }
 
+/**
+ * Display name for reports posted anonymously. The author's real account is
+ * still known to the server for moderation — only the public label changes.
+ */
+export const ANONYMOUS_AUTHOR_LABEL = 'Anonymous student';
+
 /* -------------------------------------------------------------------------- */
 /* Validation limits (mirrored by server-side validation)                     */
 /* -------------------------------------------------------------------------- */

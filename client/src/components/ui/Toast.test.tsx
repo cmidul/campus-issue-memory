@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { ToastProvider, useToast } from './Toast';
 
@@ -54,7 +54,10 @@ describe('Toast', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Send' }));
       expect(screen.getByText('Report submitted.')).toBeInTheDocument();
 
-      vi.advanceTimersByTime(5000);
+      // The auto-dismiss timer triggers a state update, so run it inside act.
+      act(() => {
+        vi.advanceTimersByTime(5000);
+      });
 
       expect(screen.queryByText('Report submitted.')).not.toBeInTheDocument();
     } finally {

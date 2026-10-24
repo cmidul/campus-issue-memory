@@ -44,7 +44,8 @@ describe('Button', () => {
       </Button>,
     );
 
-    const button = screen.getByRole('button', { name: 'Submit' });
+    // The spinner adds "Loading…" to the accessible name, so match loosely.
+    const button = screen.getByRole('button', { name: /Submit/ });
     expect(button).toBeDisabled();
     expect(button).toHaveAttribute('aria-busy', 'true');
   });
