@@ -74,6 +74,12 @@ client/src/
 - **Accessibility patterns**: skip link, one `sr-only` `h1`, labelled controls,
   `aria-pressed` on reaction toggles, focus trap + focus restore in `Dialog`,
   `role="status"` toast live region, 44 px minimum touch targets.
+- **Responsive rules**: layout is verified with zero horizontal overflow at
+  320/360/375/414/600/640/768/1024/1280/1440 px. Display utilities (`hidden`,
+  `sm:inline`, …) go on **plain elements**, never on `Button` — `Button` sets
+  `inline-flex` in its base, which wins over `hidden` in Tailwind v4's sort
+  order and would leak a duplicate button onto small screens. Swap labels with
+  responsive `<span>`s inside one button instead of rendering two.
 - **Demo safety**: every post carries `isDemo: true`, the feed is labelled
   "posts shown (demo data)", and all people/places are invented.
 

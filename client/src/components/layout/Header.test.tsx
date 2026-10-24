@@ -53,10 +53,21 @@ describe('Header', () => {
     const onReportClick = vi.fn();
     render(<Header onReportClick={onReportClick} />);
 
-    // Both the compact and full-size variants share the same accessible name.
-    const [first] = screen.getAllByRole('button', { name: 'Report a problem' });
-    await user.click(first);
+    // One responsive button; its accessible name is stable at every width.
+    await user.click(screen.getByRole('button', { name: 'Report a problem' }));
 
     expect(onReportClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders exactly one report button with responsive labels', () => {
+    render(<Header onReportClick={vi.fn()} />);
+
+    // Regression: a second full-size button used to render below the `sm`
+    // breakpoint because `hidden` lost to Button's base `inline-flex`. The
+    // single button must carry both a compact and a full label, each gated by
+    // a breakpoint on a plain element (not on Button itself).
+    const buttons = screen.getAllByRole('button', { name: 'Report a problem' });
+    expect(buttons).toHaveLength(1);
+    expect(buttons[0]).toHaveTextContent('Report a problem');
   });
 });

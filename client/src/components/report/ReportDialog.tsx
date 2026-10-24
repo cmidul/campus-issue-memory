@@ -132,18 +132,21 @@ export function ReportDialog({ open, onClose }: ReportDialogProps) {
       }
     >
       <form id="report-form" onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {/* Signed-in account posting as (or anonymously). */}
-        <div className="flex items-center gap-3 rounded-xl bg-surface-2 px-3.5 py-3">
-          <Avatar name={DEMO_VIEWER.name} anonymous={postAnonymously} />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-ink">
-              {postAnonymously ? ANONYMOUS_AUTHOR_LABEL : DEMO_VIEWER.name}
-            </p>
-            <p className="text-xs text-ink-muted">
-              {postAnonymously
-                ? 'Other students will not see your name on this post.'
-                : 'Posting from your university account.'}
-            </p>
+        {/* Signed-in account posting as (or anonymously). On narrow screens the
+            anonymous toggle drops below the account line so nothing squeezes. */}
+        <div className="flex flex-col gap-3 rounded-xl bg-surface-2 px-3.5 py-3 sm:flex-row sm:items-center sm:gap-3">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <Avatar name={DEMO_VIEWER.name} anonymous={postAnonymously} />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-ink">
+                {postAnonymously ? ANONYMOUS_AUTHOR_LABEL : DEMO_VIEWER.name}
+              </p>
+              <p className="text-xs text-ink-muted">
+                {postAnonymously
+                  ? 'Other students will not see your name on this post.'
+                  : 'Posting from your university account.'}
+              </p>
+            </div>
           </div>
           <label className="flex shrink-0 cursor-pointer items-center gap-2 text-sm font-medium text-ink">
             <input

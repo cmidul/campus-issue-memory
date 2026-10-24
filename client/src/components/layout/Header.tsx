@@ -42,7 +42,9 @@ export function Header({ onReportClick }: HeaderProps) {
               />
             </svg>
           </span>
-          <span className="text-base font-semibold tracking-tight text-ink">
+          {/* On the smallest screens only the shield icon shows, so the header
+              never overflows (320 px verified). */}
+          <span className="hidden text-base font-semibold tracking-tight text-ink sm:inline">
             Campus Issue Memory
           </span>
         </a>
@@ -67,7 +69,7 @@ export function Header({ onReportClick }: HeaderProps) {
             type="button"
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-            className="rounded-xl p-2.5 text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink"
+            className="rounded-xl p-3 text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink"
           >
             {theme === 'dark' ? (
               <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="h-5 w-5">
@@ -91,12 +93,12 @@ export function Header({ onReportClick }: HeaderProps) {
             )}
           </button>
 
-          <Button onClick={onReportClick} className="hidden sm:inline-flex">
-            Report a problem
-          </Button>
-          {/* Compact primary action for the smallest screens. */}
-          <Button onClick={onReportClick} className="sm:hidden" aria-label="Report a problem">
-            Report
+          {/* One button, responsive label. Note: never pass `hidden` to Button —
+              its base `inline-flex` wins over `hidden` in Tailwind v4's sort
+              order, so display classes must live on plain child elements. */}
+          <Button onClick={onReportClick} aria-label="Report a problem">
+            <span className="sm:hidden">Report</span>
+            <span className="hidden sm:inline">Report a problem</span>
           </Button>
 
           <button
@@ -105,7 +107,7 @@ export function Header({ onReportClick }: HeaderProps) {
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            className="rounded-xl p-2.5 text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink md:hidden"
+            className="rounded-xl p-3 text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink md:hidden"
           >
             <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="h-5 w-5">
               <path
