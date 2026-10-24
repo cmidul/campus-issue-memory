@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Illustration of a dark stairwell with a flickering ceiling light">
+  <rect width="400" height="300" fill="#2b3040"/>
+  <rect x="0" y="240" width="400" height="60" fill="#232836"/>
+  <!-- stairs -->
+  <path d="M40 240h80v-24h80v-24h80v-24h80" fill="none" stroke="#4a5168" stroke-width="14"/>
+  <!-- ceiling lamp -->
+  <rect x="186" y="40" width="28" height="10" rx="3" fill="#565f78"/>
+  <rect x="196" y="50" width="8" height="18" fill="#565f78"/>
+  <ellipse cx="200" cy="76" rx="22" ry="10" fill="#f5d77e"/>
+  <!-- dim light cone with flicker marks -->
+  <path d="M178 80 120 230h160L222 80Z" fill="#f5d77e" opacity="0.18"/>
+  <path d="M232 62l14-8M236 78h16M168 62l-14-8" stroke="#f5d77e" stroke-width="3" stroke-linecap="round"/>
+  <text x="200" y="278" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#9aa2b5">Synthetic demo image</text>
+</svg>

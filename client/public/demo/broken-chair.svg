@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Illustration of a classroom chair with a broken front leg">
+  <rect width="400" height="300" fill="#e8ebf2"/>
+  <rect x="0" y="230" width="400" height="70" fill="#d7dce8"/>
+  <!-- seat -->
+  <rect x="150" y="150" width="100" height="16" rx="4" fill="#8b6f47"/>
+  <!-- backrest -->
+  <rect x="158" y="86" width="84" height="14" rx="4" fill="#8b6f47"/>
+  <rect x="164" y="100" width="10" height="50" fill="#a08055"/>
+  <rect x="226" y="100" width="10" height="50" fill="#a08055"/>
+  <!-- back legs -->
+  <rect x="160" y="166" width="10" height="64" fill="#a08055"/>
+  <rect x="230" y="166" width="10" height="64" fill="#a08055"/>
+  <!-- broken front leg, tilted -->
+  <g transform="rotate(28 240 230)">
+    <rect x="235" y="166" width="10" height="60" fill="#a08055"/>
+  </g>
+  <rect x="155" y="166" width="10" height="64" fill="#a08055"/>
+  <!-- fracture marks -->
+  <path d="M243 168l-8 8m14-2-8 8" stroke="#7a1f1f" stroke-width="3" stroke-linecap="round"/>
+  <text x="200" y="272" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#6b7280">Synthetic demo image</text>
+</svg>

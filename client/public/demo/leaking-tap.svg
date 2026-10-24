@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" role="img" aria-label="Illustration of a dripping tap over a sink">
+  <rect width="400" height="300" fill="#e8ebf2"/>
+  <!-- sink -->
+  <rect x="110" y="190" width="180" height="60" rx="12" fill="#cfd6e4"/>
+  <rect x="126" y="204" width="148" height="34" rx="10" fill="#b9c2d6"/>
+  <!-- tap -->
+  <rect x="186" y="120" width="16" height="60" rx="4" fill="#8b93a5"/>
+  <path d="M194 128h34a8 8 0 0 1 8 8v10" fill="none" stroke="#8b93a5" stroke-width="14" stroke-linecap="round"/>
+  <rect x="172" y="108" width="44" height="14" rx="6" fill="#6f7890"/>
+  <!-- water drops -->
+  <path d="M236 168c0 0-7 8-7 12a7 7 0 0 0 14 0c0-4-7-12-7-12Z" fill="#5b8fd6"/>
+  <path d="M236 196c0 0-5 6-5 9a5 5 0 0 0 10 0c0-3-5-9-5-9Z" fill="#5b8fd6" opacity="0.7"/>
+  <text x="200" y="278" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" fill="#6b7280">Synthetic demo image</text>
+</svg>

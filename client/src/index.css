@@ -1,0 +1,186 @@
+@import 'tailwindcss';
+
+/* Class-based dark mode: the .dark class is set on <html> by useTheme(). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* --------------------------------------------------------------------------
+   Design tokens (light theme)
+   Soft-neutral canvas, white surfaces, one restrained indigo accent.
+   -------------------------------------------------------------------------- */
+:root {
+  color-scheme: light;
+
+  --canvas: #f5f6f9;
+  --surface: #ffffff;
+  --surface-2: #eef0f5;
+  --ink: #16181d;
+  --ink-muted: #59606e;
+  --line: #e3e6ec;
+
+  --accent-50: #eef1ff;
+  --accent-100: #dfe4ff;
+  --accent-500: #5560cf;
+  --accent-600: #454fbb;
+  --accent-700: #3a439e;
+  --accent-800: #2f3781;
+
+  /* Status tone tokens: soft background, readable ink, subtle border. */
+  --tone-neutral-bg: #eef0f5;
+  --tone-neutral-fg: #4b5160;
+  --tone-neutral-border: #dde1e9;
+
+  --tone-info-bg: #e9eefb;
+  --tone-info-fg: #2c3f92;
+  --tone-info-border: #ccd8f4;
+
+  --tone-progress-bg: #eef1ff;
+  --tone-progress-fg: #3a439e;
+  --tone-progress-border: #d2d9f7;
+
+  --tone-success-bg: #e6f4ec;
+  --tone-success-fg: #1a6544;
+  --tone-success-border: #c3e2d1;
+
+  --tone-warning-bg: #faf0dd;
+  --tone-warning-fg: #7a5210;
+  --tone-warning-border: #ecd8ae;
+
+  --tone-danger-bg: #fbe9e8;
+  --tone-danger-fg: #96231f;
+  --tone-danger-border: #f0ccca;
+}
+
+/* --------------------------------------------------------------------------
+   Dark theme
+   -------------------------------------------------------------------------- */
+.dark {
+  color-scheme: dark;
+
+  --canvas: #0f1116;
+  --surface: #171a21;
+  --surface-2: #21252f;
+  --ink: #e7e9ee;
+  --ink-muted: #9aa2b1;
+  --line: #2b303b;
+
+  --accent-50: #1e2340;
+  --accent-100: #262c4f;
+  --accent-500: #7b84e8;
+  --accent-600: #5a64d8;
+  --accent-700: #4a53c4;
+  --accent-800: #3e46ab;
+
+  --tone-neutral-bg: #232732;
+  --tone-neutral-fg: #b9bfcc;
+  --tone-neutral-border: #363c49;
+
+  --tone-info-bg: #1a2444;
+  --tone-info-fg: #a6bbf5;
+  --tone-info-border: #2c3a66;
+
+  --tone-progress-bg: #232a4d;
+  --tone-progress-fg: #b3bcf7;
+  --tone-progress-border: #384179;
+
+  --tone-success-bg: #14301f;
+  --tone-success-fg: #7fd0a3;
+  --tone-success-border: #23492f;
+
+  --tone-warning-bg: #332813;
+  --tone-warning-fg: #dfb169;
+  --tone-warning-border: #4d3d1d;
+
+  --tone-danger-bg: #37191a;
+  --tone-danger-fg: #f0a19d;
+  --tone-danger-border: #5c2b2b;
+}
+
+/* --------------------------------------------------------------------------
+   Map tokens to Tailwind utilities. `inline` makes utilities reference the
+   raw variables above so the .dark overrides apply automatically.
+   -------------------------------------------------------------------------- */
+@theme inline {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-line: var(--line);
+
+  --color-accent-50: var(--accent-50);
+  --color-accent-100: var(--accent-100);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-accent-700: var(--accent-700);
+  --color-accent-800: var(--accent-800);
+
+  --color-neutral-bg: var(--tone-neutral-bg);
+  --color-neutral-fg: var(--tone-neutral-fg);
+  --color-neutral-border: var(--tone-neutral-border);
+
+  --color-info-bg: var(--tone-info-bg);
+  --color-info-fg: var(--tone-info-fg);
+  --color-info-border: var(--tone-info-border);
+
+  --color-progress-bg: var(--tone-progress-bg);
+  --color-progress-fg: var(--tone-progress-fg);
+  --color-progress-border: var(--tone-progress-border);
+
+  --color-success-bg: var(--tone-success-bg);
+  --color-success-fg: var(--tone-success-fg);
+  --color-success-border: var(--tone-success-border);
+
+  --color-warning-bg: var(--tone-warning-bg);
+  --color-warning-fg: var(--tone-warning-fg);
+  --color-warning-border: var(--tone-warning-border);
+
+  --color-danger-bg: var(--tone-danger-bg);
+  --color-danger-fg: var(--tone-danger-fg);
+  --color-danger-border: var(--tone-danger-border);
+  --color-danger: var(--tone-danger-fg);
+}
+
+/* --------------------------------------------------------------------------
+   Base styles
+   -------------------------------------------------------------------------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      Roboto,
+      'Helvetica Neue',
+      Arial,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* One consistent, visible focus indicator everywhere. */
+  :focus-visible {
+    outline: 2px solid var(--accent-600);
+    outline-offset: 2px;
+  }
+}
+
+/* Respect the user's reduced-motion setting at the design-system level. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
