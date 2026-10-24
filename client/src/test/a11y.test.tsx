@@ -44,6 +44,8 @@ describe('accessibility', () => {
 
   it('has no axe violations with the report dialog open', async () => {
     const user = userEvent.setup();
+    // Signed-in users reach the composer; visitors stop at the sign-in dialog.
+    window.localStorage.setItem('cim.demo-session', 'true');
     render(<App />);
     await screen.findByRole('heading', { level: 1 });
     await screen.findByText('Broken chair in Lecture Hall B');

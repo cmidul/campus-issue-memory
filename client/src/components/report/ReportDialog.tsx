@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { ANONYMOUS_AUTHOR_LABEL, CATEGORIES, LIMITS, SEVERITIES } from '@cim/shared';
-import { DEMO_VIEWER } from '../../data/demoReports';
+import { useAuth } from '../../auth/AuthProvider';
 import { Avatar } from '../ui/Avatar';
 import { Button } from '../ui/Button';
 import { Dialog } from '../ui/Dialog';
@@ -27,6 +27,9 @@ function formatMb(bytes: number): string {
  */
 export function ReportDialog({ open, onClose }: ReportDialogProps) {
   const { toast } = useToast();
+  const { user } = useAuth();
+  // The composer only opens after sign-in; fall back defensively anyway.
+  const viewerName = user?.name ?? 'Student';
   const [description, setDescription] = useState('');
   const [location, setLocation] = useState('');
   const [category, setCategory] = useState('');
@@ -136,15 +139,17 @@ export function ReportDialog({ open, onClose }: ReportDialogProps) {
             anonymous toggle drops below the account line so nothing squeezes. */}
         <div className="flex flex-col gap-3 rounded-xl bg-surface-2 px-3.5 py-3 sm:flex-row sm:items-center sm:gap-3">
           <div className="flex min-w-0 flex-1 items-center gap-3">
-            <Avatar name={DEMO_VIEWER.name} anonymous={postAnonymously} />
+            <Avatar name={viewerName} anonymous={postAnonymously} />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold text-ink">
-                {postAnonymously ? ANONYMOUS_AUTHOR_LABEL : DEMO_VIEWER.name}
+                {postAnonymously ? ANONYMOUS_AUTHOR_LABEL : viewerName}
               </p>
               <p className="text-xs text-ink-muted">
                 {postAnonymously
                   ? 'Other students will not see your name on this post.'
-                  : 'Posting from your university account.'}
+                  : user?.isDemo
+                    ? 'Posting from the demo account (synthetic data only).'
+                    : 'Posting from your university account.'}
               </p>
             </div>
           </div>

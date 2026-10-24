@@ -1,7 +1,17 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Header } from './Header';
+import { AuthProvider } from '../../auth/AuthProvider';
+import { Header, type HeaderProps } from './Header';
+
+/** Header consumes auth state, so every render goes through the provider. */
+function renderHeader(props: Partial<HeaderProps> = {}) {
+  return render(
+    <AuthProvider>
+      <Header onReportClick={vi.fn()} onSignInClick={vi.fn()} {...props} />
+    </AuthProvider>,
+  );
+}
 
 describe('Header', () => {
   beforeEach(() => {
@@ -10,7 +20,7 @@ describe('Header', () => {
   });
 
   it('offers a skip link to the main content', () => {
-    render(<Header onReportClick={vi.fn()} />);
+    renderHeader();
     expect(screen.getByRole('link', { name: 'Skip to main content' })).toHaveAttribute(
       'href',
       '#main',
@@ -19,7 +29,7 @@ describe('Header', () => {
 
   it('toggles between light and dark theme', async () => {
     const user = userEvent.setup();
-    render(<Header onReportClick={vi.fn()} />);
+    renderHeader();
 
     const toggle = screen.getByRole('button', { name: 'Switch to dark theme' });
     await user.click(toggle);
@@ -31,7 +41,7 @@ describe('Header', () => {
 
   it('opens and closes the mobile menu', async () => {
     const user = userEvent.setup();
-    render(<Header onReportClick={vi.fn()} />);
+    renderHeader();
 
     const menuButton = screen.getByRole('button', { name: 'Open menu' });
     expect(menuButton).toHaveAttribute('aria-expanded', 'false');
@@ -51,7 +61,7 @@ describe('Header', () => {
   it('reports the report button to the parent', async () => {
     const user = userEvent.setup();
     const onReportClick = vi.fn();
-    render(<Header onReportClick={onReportClick} />);
+    renderHeader({ onReportClick });
 
     // One responsive button; its accessible name is stable at every width.
     await user.click(screen.getByRole('button', { name: 'Report a problem' }));
@@ -60,7 +70,7 @@ describe('Header', () => {
   });
 
   it('renders exactly one report button with responsive labels', () => {
-    render(<Header onReportClick={vi.fn()} />);
+    renderHeader();
 
     // Regression: a second full-size button used to render below the `sm`
     // breakpoint because `hidden` lost to Button's base `inline-flex`. The
@@ -69,5 +79,37 @@ describe('Header', () => {
     const buttons = screen.getAllByRole('button', { name: 'Report a problem' });
     expect(buttons).toHaveLength(1);
     expect(buttons[0]).toHaveTextContent('Report a problem');
+  });
+
+  it('offers a sign-in button to visitors and reports the click', async () => {
+    const user = userEvent.setup();
+    const onSignInClick = vi.fn();
+    renderHeader({ onSignInClick });
+
+    // Resolves once the session lookup settles (no server → visitor).
+    const signIn = await screen.findByRole('button', { name: 'Sign in' });
+    await user.click(signIn);
+
+    expect(onSignInClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows the account chip with role and signs the demo user out', async () => {
+    const user = userEvent.setup();
+    // Seed the persisted demo session; the provider restores it on mount.
+    window.localStorage.setItem('cim.demo-session', 'true');
+    renderHeader();
+
+    // Signed in via the demo account (no server session in jsdom).
+    const chip = await screen.findByRole('button', { name: 'Account menu for Alex Kim' });
+    await user.click(chip);
+
+    expect(screen.getByText('alex.kim@university.edu')).toBeInTheDocument();
+    expect(screen.getByText('Campus staff')).toBeInTheDocument();
+    expect(screen.getByText('demo')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Sign out' }));
+
+    expect(await screen.findByRole('button', { name: 'Sign in' })).toBeInTheDocument();
+    expect(window.localStorage.getItem('cim.demo-session')).toBeNull();
   });
 });

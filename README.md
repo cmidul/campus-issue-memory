@@ -14,7 +14,7 @@ Campus maintenance reports usually vanish into an inbox. Students never learn wh
 
 - **Short report flow** — photo _or_ short video clip (MP4/WebM, up to 60 s), description, location, done in under a minute.
 - **Facebook-style feed** — author header (or "Anonymous student"), Like / Dislike / Don't-know reactions with counts, and a comment thread on every post.
-- **Account-based posting** — post from your university account or tick _Post anonymously_; moderators still know who filed it.
+- **Account-based posting** — Google sign-in with a campus e-mail domain gate (two roles: normal user, admin) or the built-in demo account; tick _Post anonymously_ and moderators still know who filed it.
 - **Plain-language statuses** — Submitted → Under review → Verified → In progress → Resolved (with Reopened/Rejected), explained on the page itself.
 - **Light & dark theme** — one toggle, persisted, respects the OS preference on first visit.
 - **Accessible & mobile-first** — keyboard navigation, focus traps in dialogs, live regions for toasts, safe-area padding, works from 320 px up.
@@ -45,7 +45,7 @@ npm run dev
 - Client: http://localhost:5173 (or the next free port)
 - API: http://localhost:4000/api/health
 
-No `.env` needed for the demo. When you're ready for real sign-in and storage, copy `.env.example` to `.env` and fill in what you need — each key is optional and documented there.
+No `.env` needed for the demo. Sign-in works out of the box with the built-in demo account; to enable real Google sign-in, set `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`, `UNIVERSITY_EMAIL_DOMAIN`, `SESSION_SECRET`, and `ADMIN_EMAILS`. When you're ready for storage, add the Supabase keys — copy `.env.example` to `.env`; each key is optional and documented there.
 
 ## Scripts
 

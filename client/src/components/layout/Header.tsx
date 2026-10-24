@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '../../auth/AuthProvider';
 import { cn } from '../../lib/cn';
 import { useTheme } from '../../theme/useTheme';
+import { Avatar } from '../ui/Avatar';
 import { Button } from '../ui/Button';
 
 const NAV_ITEMS = [
@@ -10,13 +12,50 @@ const NAV_ITEMS = [
 ] as const;
 
 export interface HeaderProps {
-  /** Opens the report composer dialog. */
+  /** Opens the report composer (the app gates it on sign-in). */
   onReportClick: () => void;
+  /** Opens the sign-in dialog. */
+  onSignInClick: () => void;
 }
 
-export function Header({ onReportClick }: HeaderProps) {
+/** Two-tier role label, matching the server's model. */
+function roleLabel(role: 'visitor' | 'user' | 'admin'): string {
+  if (role === 'admin') return 'Campus staff';
+  if (role === 'user') return 'Student / teacher / officer';
+  return 'Visitor';
+}
+
+export function Header({ onReportClick, onSignInClick }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
+  const { user, loading, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement>(null);
+
+  // Close the account popover on outside click or Escape while it is open.
+  useEffect(() => {
+    if (!accountOpen) return;
+    function handleMouseDown(event: MouseEvent) {
+      const target = event.target as Node;
+      if (accountRef.current && !accountRef.current.contains(target)) {
+        setAccountOpen(false);
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setAccountOpen(false);
+    }
+    document.addEventListener('mousedown', handleMouseDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleMouseDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [accountOpen]);
+
+  function handleSignOut() {
+    setAccountOpen(false);
+    signOut();
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur-sm">
@@ -100,6 +139,76 @@ export function Header({ onReportClick }: HeaderProps) {
             <span className="sm:hidden">Report</span>
             <span className="hidden sm:inline">Report a problem</span>
           </Button>
+
+          {/* Sign-in state: skeleton while the session lookup settles, then
+              either the account popover or a Sign in button. */}
+          {loading ? (
+            <span
+              aria-hidden="true"
+              className="h-9 w-9 shrink-0 animate-pulse rounded-full bg-surface-2"
+            />
+          ) : user ? (
+            <div ref={accountRef} className="relative">
+              <button
+                type="button"
+                onClick={() => setAccountOpen((open) => !open)}
+                aria-expanded={accountOpen}
+                aria-controls="account-menu"
+                aria-label={`Account menu for ${user.name}`}
+                className="flex items-center gap-1.5 rounded-xl p-1.5 pr-2 text-ink-muted transition-colors hover:bg-surface-2 hover:text-ink"
+              >
+                <Avatar name={user.name} size="sm" />
+                {/* The name only shows once there is room (sm and up). */}
+                <span className="hidden max-w-24 truncate text-sm font-medium text-ink sm:inline">
+                  {user.name.split(' ')[0]}
+                </span>
+                <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" className="h-3.5 w-3.5">
+                  <path
+                    d="m5.5 8 4.5 4.5L14.5 8"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+
+              {accountOpen && (
+                <div
+                  id="account-menu"
+                  className="absolute right-0 top-full z-50 mt-1 w-60 rounded-xl border border-line bg-surface p-1 shadow-md"
+                >
+                  <div className="px-3 py-2">
+                    <p className="truncate text-sm font-semibold text-ink">{user.name}</p>
+                    <p className="truncate text-xs text-ink-muted">{user.email}</p>
+                    <p className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      <span className="rounded bg-surface-2 px-1.5 py-0.5 text-xs font-medium text-ink-muted">
+                        {roleLabel(user.role)}
+                      </span>
+                      {user.isDemo && (
+                        <span className="rounded bg-accent-50 px-1.5 py-0.5 text-xs font-medium text-accent-700">
+                          demo
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="border-t border-line pt-1">
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-ink transition-colors hover:bg-surface-2"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Button variant="secondary" size="sm" onClick={onSignInClick}>
+              Sign in
+            </Button>
+          )}
 
           <button
             type="button"

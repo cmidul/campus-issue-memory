@@ -88,7 +88,8 @@ client/src/
 ```
 server/src/
 ├── index.ts     Express bootstrap, JSON body limit, CORS for the client origin
-└── routes/      health now; reports / auth / ai milestones M2–M6
+├── auth/        session cookies, Google OAuth flow, campus domain/role gate
+└── routes/      health now; reports / ai in milestones M2, M4–M6
 ```
 
 - Plain-language errors: every error body is `{ error: { code, message } }`
@@ -115,12 +116,29 @@ published reports, write only their own reactions/comments, and anonymous posts
 store the author id server-side while exposing only
 `ANONYMOUS_AUTHOR_LABEL` to other students.
 
-## Authentication (planned, Milestone 3)
+## Authentication (shipped, Milestone 3)
 
-Google OAuth → callback verifies the e-mail ends with
-`UNIVERSITY_EMAIL_DOMAIN` → server sets an httpOnly session cookie → role comes
-from `profiles`. No student e-mail address is ever shown in the UI or sent to
-the AI provider.
+Two tiers only: **`user`** (any campus e-mail holder — student, teacher, or
+officer) and **`admin`** (addresses listed in `ADMIN_EMAILS`); unauthenticated
+visitors are `visitor`.
+
+- **Google OAuth** → the callback validates the CSRF `state` cookie, exchanges
+  the code for a verified profile, then gates the e-mail: admin list first,
+  then `UNIVERSITY_EMAIL_DOMAIN`. Anything else is rejected before any session
+  exists.
+- **Session** = HMAC-signed cookie (`base64url payload.signature`, 7-day
+  expiry, `HttpOnly`, `SameSite=Lax`, `Secure` in production). No server-side
+  store until Supabase arrives in M2 — the signature makes the cookie
+  self-validating and tamper-proof.
+- Browser-navigated OAuth routes **never return raw JSON**: failures redirect
+  to `/?auth_error=<reason>` (success: `/?auth=signed_in`) and the client shows
+  a plain-language toast.
+- **Zero keys = demo sign-in**: `/api/auth/config` reports
+  `googleSignInEnabled: false` without credentials, and the client offers the
+  built-in demo account (localStorage `cim.demo-session`), badged `demo` in the
+  account menu.
+- Each user sees only their own e-mail (account menu). No student e-mail
+  address is ever shown publicly in the UI or sent to the AI provider.
 
 ## AI pipeline (planned, Milestone 6–7)
 
@@ -148,7 +166,7 @@ clip ─▶ frame sampling (N key frames) ─┴─▶ resize ─▶ open-weight
 | Data        | `demoReports.ts`, clearly labelled | Supabase, real accounts              |
 | Reactions   | local state per post               | unique row per (report, profile)     |
 | Comments    | local state per post               | table rows, moderation + soft delete |
-| Auth        | fixed demo viewer "Alex Kim"       | Google OAuth + domain gate           |
+| Auth        | demo sign-in (badged `demo`)       | Google OAuth + domain gate           |
 | AI          | not called                         | OpenRouter free tier, frames only    |
 | Keys needed | none                               | per-feature, all documented          |
 

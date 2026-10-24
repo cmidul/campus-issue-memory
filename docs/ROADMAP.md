@@ -9,11 +9,11 @@ docs updated → verified push**, then a stop for review.
 | #   | Milestone                            | Status  |
 | --- | ------------------------------------ | ------- |
 | M1  | Scaffold + Facebook-style demo feed  | ✅ done |
-| M2  | API and database                     | ⬜ next |
-| M3  | Authentication and roles             | ⬜      |
+| M2  | API and database                     | ⬜      |
+| M3  | Authentication and roles             | ✅ done |
 | M4  | Real reports with media              | ⬜      |
 | M5  | Moderation workflow                  | ⬜      |
-| M6  | AI: photo & video identification     | ⬜      |
+| M6  | AI: photo & video identification     | ⬜ next |
 | M7  | Media trust: provenance & AI-content | ⬜      |
 | M8  | Server-side community features       | ⬜      |
 | M9  | Search and discovery                 | ⬜      |
@@ -53,15 +53,24 @@ features above are visible in the browser.
 **Done when:** an API integration test can post, react, and comment against a
 throwaway project; no secret exists outside `.env`.
 
-## M3 — Authentication and roles
+## M3 — Authentication and roles ✅
 
-- Google OAuth flow, server-side session cookie, e-mail domain gate via
-  `UNIVERSITY_EMAIL_DOMAIN`.
-- Roles `visitor` / `user` / `admin`; UI reacts to the signed-in state.
-- Sign-out, session expiry, and "you must sign in" recovery paths.
+- Google OAuth flow with an HMAC-signed session cookie (`cim_session`,
+  HttpOnly, SameSite=Lax, 7-day expiry), CSRF `state` cookie on the OAuth
+  round-trip, e-mail domain gate via `UNIVERSITY_EMAIL_DOMAIN`.
+- Two tiers only: `user` (any campus e-mail holder — student, teacher, or
+  officer) and `admin` (listed in `ADMIN_EMAILS`); unauthenticated visitors are
+  `visitor`.
+- UI reacts to the signed-in state: sign-in button vs. account chip with role
+  label and sign-out, composer gated behind sign-in with intent resume, OAuth
+  results surfaced as plain-language toasts.
+- Zero-key fallback: without OAuth keys the server reports Google sign-in as
+  off and the built-in demo account takes its place, so demos need no config.
 
-**Done when:** only university-domain accounts can post; RLS denies writes for
-anonymous clients; auth tests cover accept/reject cases.
+**Done when:** only university-domain accounts can post ✅ (domain-gate
+accept/reject covered by 21 server tests); sign-out, session expiry, and the
+"you must sign in" recovery path ✅. _RLS denies writes for anonymous clients_
+ships with **M2**, which owns the database.
 
 ## M4 — Real reports with media
 
